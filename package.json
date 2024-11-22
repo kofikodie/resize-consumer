@@ -1,0 +1,35 @@
+{
+  "name": "app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "tsc": "tsc",
+    "nodemon:app": "nodemon --exec ts-node src/index.ts",
+    "nodemon:sub": "nodemon --exec ts-node src/index.ts",
+    "start:dev": "nodemon --watch libs/api --ext ts -L --exec npm run nodemon:app",
+    "start:consumer": "nodemon --watch src/ --ext ts -L --exec npm run nodemon:sub",
+    "build": "tsc",
+    "test": "jest --runInBand --forceExit --config jest.config.json ./tests"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.1692.0",
+    "dotenv": "^16.0.3",
+    "sharp": "^0.33.5"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.4.0",
+    "@types/node": "^18.11.18",
+    "@types/sharp": "^0.31.1",
+    "@types/supertest": "^2.0.12",
+    "jest": "^29.4.1",
+    "nodemon": "^2.0.20",
+    "supertest": "^6.3.3",
+    "ts-jest": "^29.0.5",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.4"
+  }
+}

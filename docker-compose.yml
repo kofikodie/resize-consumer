@@ -1,0 +1,14 @@
+services:
+  consumer:
+    container_name: consumer
+    tty: true
+    build:
+      context: .
+      dockerfile: .docker/node/Dockerfile
+    command: ["npm", "run", "start:consumer"]
+    volumes:
+      - ./:/app
+    environment:
+      QUEUE_URL: ${QUEUE_URL}
+      QUEUE_NAME: ${QUEUE_NAME}
+
