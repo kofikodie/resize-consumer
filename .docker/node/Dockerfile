@@ -15,16 +15,18 @@ COPY . .
 # Build the TypeScript project
 RUN npm run build
 
-# Stage 2: Create production-ready image
+# Remove unnecessary devDependencies for a cleaner dist
+RUN npm prune --production
+
+# Stage 2: Create production-ready image with distroless
 FROM gcr.io/distroless/nodejs22-debian12
 
 WORKDIR /app
 
 # Copy only the necessary files from the build stage
+COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/package*.json ./
 
-# Install only production dependencies
-RUN npm ci --only=production
 
 # Command to run your app
-CMD ["node", "src/index.js"]
+CMD ["src/index.js"]
