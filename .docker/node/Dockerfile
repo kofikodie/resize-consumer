@@ -22,10 +22,9 @@ WORKDIR /app
 
 # Copy only the necessary files from the build stage
 COPY --from=build /app/package*.json ./
-COPY --from=build /app/dist ./dist
 
 # Install only production dependencies
 RUN npm ci --only=production
 
 # Command to run your app
-CMD ["node", "dist/src/index.js"]
+CMD ["node", "src/index.js"]
