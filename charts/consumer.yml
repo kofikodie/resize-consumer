@@ -17,7 +17,7 @@ spec:
           - command:
             - node
             - index.js
-            image: <do your thing github>
+            image: 317884193661.dkr.ecr.eu-west-1.amazonaws.com/resize-config:9266026bfbe7a654aa602ded659fc7c462324f78
             name: resize_consumer
             resources: {}
             env:
