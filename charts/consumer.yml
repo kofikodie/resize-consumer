@@ -17,7 +17,7 @@ spec:
           - command:
             - node
             - index.js
-            image: 317884193661.dkr.ecr.eu-west-1.amazonaws.com/resize-config:9266026bfbe7a654aa602ded659fc7c462324f78
+            image: 317884193661.dkr.ecr.eu-west-1.amazonaws.com/resize-config:894d86635e2c51dbe0d76f2d8a90308a09c7d597
             name: resize-consumer
             resources: {}
             env:
