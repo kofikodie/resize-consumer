@@ -14,6 +14,3 @@ COPY . .
 
 # Build the TypeScript project
 RUN npm run build
-
-# Remove unnecessary devDependencies for a cleaner dist
-CMD ["npm", "run", "start:consumer"]

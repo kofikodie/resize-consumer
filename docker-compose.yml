@@ -8,5 +8,6 @@ services:
     command: ["npm", "run", "start:consumer"]
     volumes:
       - ./:/app
+      - /app/node_modules
     environment:
       ENV RUNNING_ENV: "prod"
