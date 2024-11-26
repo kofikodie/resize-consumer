@@ -2,12 +2,12 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   creationTimestamp: null
-  name: resize_consumer
+  name: resize-consumer
 spec:
   jobTemplate:
     metadata:
       creationTimestamp: null
-      name: resize_consumer
+      name: resize-consumer
     spec:
       template:
         metadata:
@@ -18,7 +18,7 @@ spec:
             - node
             - index.js
             image: 317884193661.dkr.ecr.eu-west-1.amazonaws.com/resize-config:9266026bfbe7a654aa602ded659fc7c462324f78
-            name: resize_consumer
+            name: resize-consumer
             resources: {}
             env:
             - name: AWS_DEFAULT_REGION
