@@ -13,11 +13,18 @@ export default class SQSAdapter implements SqsAdapterInterface {
     private readonly sqs: SQS;
 
     constructor() {
-        this.sqs = new SQS({
-            endpoint: new AWS.Endpoint(process.env.AWS_SERVICES_ENDPOINT ?? ''),
-            region: process.env.AWS_DEFAULT_REGION,
-            credentials: new AWS.Credentials(process.env.AWS_ACCESS_KEY_ID ?? '', process.env.AWS_SECRET_ACCESS_KEY ?? '')
-        });
+        if (process.env.RUNNING_ENV === "prod" ) { 
+            this.sqs = new SQS({
+                region: process.env.AWS_DEFAULT_REGION,
+                credentials: new AWS.Credentials(process.env.AWS_ACCESS_KEY_ID ?? '', process.env.AWS_SECRET_ACCESS_KEY ?? '')
+            });
+        } else {
+            this.sqs = new SQS({
+                endpoint: new AWS.Endpoint(process.env.AWS_SERVICES_ENDPOINT ?? ''),
+                region: process.env.AWS_DEFAULT_REGION,
+                credentials: new AWS.Credentials(process.env.AWS_ACCESS_KEY_ID ?? '', process.env.AWS_SECRET_ACCESS_KEY ?? '')
+            });
+        }
     }
 
     public async listQueues(): Promise<string[]> {

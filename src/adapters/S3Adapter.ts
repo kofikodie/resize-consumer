@@ -9,14 +9,24 @@ export default class S3Adapter implements S3AdapterInterface {
     private readonly s3: S3;
 
     constructor() {
-        this.s3 = new S3(
-            {
-                endpoint: new AWS.Endpoint(process.env.AWS_SERVICES_ENDPOINT ?? ''),
-                s3ForcePathStyle: true,
-                region: process.env.AWS_DEFAULT_REGION,
-                credentials: new AWS.Credentials(process.env.AWS_ACCESS_KEY_ID ?? '', process.env.AWS_SECRET_ACCESS_KEY ?? '')
-            }
-        );
+        if (process.env.RUNNING_ENV === "prod" ) {
+            this.s3 = new S3(
+                {
+                    s3ForcePathStyle: true,
+                    region: process.env.AWS_DEFAULT_REGION,
+                    credentials: new AWS.Credentials(process.env.AWS_ACCESS_KEY_ID ?? '', process.env.AWS_SECRET_ACCESS_KEY ?? '')
+                }
+            );
+        } else {
+            this.s3 = new S3(
+                {
+                    endpoint: new AWS.Endpoint(process.env.AWS_SERVICES_ENDPOINT ?? ''),
+                    s3ForcePathStyle: true,
+                    region: process.env.AWS_DEFAULT_REGION,
+                    credentials: new AWS.Credentials(process.env.AWS_ACCESS_KEY_ID ?? '', process.env.AWS_SECRET_ACCESS_KEY ?? '')
+                }
+            );
+        }
     }
 
     public async storeImage(buffer: Buffer, imageName: string, bucketName: string, key = randomUUID()): Promise<string> {
