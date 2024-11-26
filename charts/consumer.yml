@@ -1,0 +1,51 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  creationTimestamp: null
+  name: resize_consumer
+spec:
+  jobTemplate:
+    metadata:
+      creationTimestamp: null
+      name: resize_consumer
+    spec:
+      template:
+        metadata:
+          creationTimestamp: null
+        spec:
+          containers:
+          - command:
+            - node
+            - index.js
+            image: <do your thing github>
+            name: resize_consumer
+            resources: {}
+            env:
+            - name: AWS_DEFAULT_REGION
+              valueFrom:
+                secretKeyRef:
+                  name: resize-secret
+                  key: AWS_DEFAULT_REGION
+            - name: QUEUE_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: resize-secret
+                  key: QUEUE_NAME
+            - name: QUEUE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: resize-secret
+                  key: QUEUE_URL
+            - name: BUCKET_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: resize-secret
+                  key: BUCKET_NAME
+            - name: BUCKET_NAME_TMP
+              valueFrom:
+                secretKeyRef:
+                  name: resize-secret
+                  key: BUCKET_NAME_TMP
+          restartPolicy: OnFailure
+  schedule: '*/1 * * * *'
+status: {}
