@@ -28,6 +28,3 @@ COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/package*.json ./
 
 ENV RUNNING_ENV="prod"
-
-# Command to run your app
-CMD ["src/index.js"]
