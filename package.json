@@ -5,9 +5,7 @@
   "main": "index.js",
   "scripts": {
     "tsc": "tsc",
-    "nodemon:app": "nodemon --exec ts-node src/index.ts",
     "nodemon:sub": "nodemon --exec ts-node src/index.ts",
-    "start:dev": "nodemon --watch libs/api --ext ts -L --exec npm run nodemon:app",
     "start:consumer": "nodemon --watch src/ --ext ts -L --exec npm run nodemon:sub",
     "build": "tsc",
     "test": "jest --runInBand --forceExit --config jest.config.json ./tests"

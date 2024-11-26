@@ -37,7 +37,7 @@ jobs:
           ECR_REPOSITORY: resize-config
           IMAGE_TAG: ${{ steps.commit_sha.outputs.sha }}
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f ./.docker/node/Dockerfile .
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f ./.docker/node/prod/Dockerfile .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ steps.commit_sha.outputs.sha }}
       # Checkout the repository
       - uses: actions/checkout@v4
