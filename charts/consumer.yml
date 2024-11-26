@@ -15,7 +15,7 @@ spec:
         spec:
           containers:
           - args:
-            - src/index.js
+            - index.js
             image: 317884193661.dkr.ecr.eu-west-1.amazonaws.com/resize-config:a32267dc22471e08749dad760adaca9319eab779
             name: resize-consumer
             resources: {}
