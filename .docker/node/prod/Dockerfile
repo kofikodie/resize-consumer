@@ -19,7 +19,7 @@ RUN npm run build
 RUN npm prune --production
 
 # Stage 2: Create production-ready image with distroless
-FROM gcr.io/distroless/nodejs22-debian12
+FROM node:22-alpine3.19
 
 WORKDIR /app
 
@@ -31,4 +31,4 @@ COPY --from=build /app/src ./
 ENV RUNNING_ENV="prod"
 
 # Command to run your app
-CMD ["index.js"]
+CMD ["node", "index.js"]
