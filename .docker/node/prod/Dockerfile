@@ -1,5 +1,5 @@
 # Stage 1: Install dependencies and build the app 
-FROM node:22-alpine3.19 AS build
+FROM arm64v8/node:22-alpine3.19 AS build
 
 WORKDIR /app
 
