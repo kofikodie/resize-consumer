@@ -40,8 +40,7 @@ jobs:
           IMAGE_TAG: ${{ steps.commit_sha.outputs.sha }}
         run: |
           docker buildx create --use
-          docker buildx build --platform linux/arm64 -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f ./.docker/node/prod/Dockerfile .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker buildx build --platform linux/arm64 -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f ./.docker/node/prod/Dockerfile --push .
       # Checkout the repository
       - uses: actions/checkout@v4
       # Clone the repository containing the Argo CI manifest, update the image tag and push the changes
