@@ -1,4 +1,4 @@
-# Stage 1: Install dependencies and build the app
+# Stage 1: Install dependencies and build the app 
 FROM node:22-alpine3.19 AS build
 
 WORKDIR /app
@@ -18,8 +18,8 @@ RUN npm run build
 # Remove unnecessary devDependencies for a cleaner dist
 RUN npm prune --production
 
-# Stage 2: Create production-ready image with distroless
-FROM node:22-alpine3.19
+# Stage 2: Create production-ready image with --platform=linux/arm64 arm64v8/node:20
+FROM arm64v8/node:22-alpine3.19
 
 WORKDIR /app
 
