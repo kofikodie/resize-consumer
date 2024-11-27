@@ -39,6 +39,7 @@ jobs:
           ECR_REPOSITORY: resize-config
           IMAGE_TAG: ${{ steps.commit_sha.outputs.sha }}
         run: |
+          docker buildx create --use
           docker buildx build --platform linux/arm64 -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f ./.docker/node/prod/Dockerfile .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ steps.commit_sha.outputs.sha }}
       # Checkout the repository
