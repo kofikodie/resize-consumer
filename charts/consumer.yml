@@ -14,7 +14,7 @@ spec:
           creationTimestamp: null
         spec:
           containers:
-          - image: 317884193661.dkr.ecr.eu-west-1.amazonaws.com/resize-config:82fe85a0cdd51a0290958d806feac749c567b73c
+          - image: 317884193661.dkr.ecr.eu-west-1.amazonaws.com/resize-config:258551aeb934f3db8a3ed5d5c52c3198faf69707
             name: resize-consumer
             resources: {}
             env:
