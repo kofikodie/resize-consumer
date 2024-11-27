@@ -68,6 +68,7 @@ async function processImageTask() {
 async function main() {
     try {
         console.log(process.env.AWS_DEFAULT_REGION);
+        console.log(process.env.RUNNING_ENV);
         await processImageTask();
         console.log("Task completed successfully.");
     } catch (err) {

@@ -10,11 +10,9 @@ export default class S3Adapter implements S3AdapterInterface {
 
     constructor() {
         if (process.env.RUNNING_ENV === "prod") {
-            AWS.config.update({
+            this.s3 = new S3({
                 region: process.env.AWS_DEFAULT_REGION ?? "eu-west-1",
             });
-
-            this.s3 = new S3();
         } else {
             this.s3 = new S3({
                 endpoint: new AWS.Endpoint(
