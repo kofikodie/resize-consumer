@@ -20,10 +20,10 @@ export default class SQSAdapter implements SqsAdapterInterface {
 
     constructor() {
         if (process.env.RUNNING_ENV === "prod") {
-            //AWS.config.update({ region: process.env.AWS_DEFAULT_REGION ?? 'eu-west-1' });
-            this.sqs = new SQS({
+            AWS.config.update({
                 region: process.env.AWS_DEFAULT_REGION ?? "eu-west-1",
             });
+            this.sqs = new SQS();
         } else {
             this.sqs = new SQS({
                 endpoint: new AWS.Endpoint(
