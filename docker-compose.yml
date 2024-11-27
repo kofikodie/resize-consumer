@@ -10,4 +10,11 @@ services:
       - ./:/app
       - /app/node_modules
     environment:
-      ENV RUNNING_ENV: "prod"
+      AWS_DEFAULT_REGION: "{AWS_DEFAULT_REGION}"
+      QUEUE_NAME: "{QUEUE_NAME}"
+      QUEUE_URL: "{QUEUE_URL}"
+      AWS_SERVICES_ENDPOINT: "{AWS_SERVICES_ENDPOINT}"  
+      BUCKET_NAME: "{BUCKET_NAME}"
+      BUCKET_NAME_TMP=: "{BUCKET_NAME_TMP}"
+      RUNNING_ENV: "{RUNNING_ENV}"
+

@@ -9,7 +9,7 @@ export default class S3Adapter implements S3AdapterInterface {
     private readonly s3: S3;
 
     constructor() {
-        if (process.env.RUNNING_ENV === "prod") {
+        if (process.env.RUNNING_ENV) {
             this.s3 = new S3({
                 region: process.env.AWS_DEFAULT_REGION ?? "eu-west-1",
             });
