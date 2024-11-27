@@ -20,28 +20,28 @@ spec:
             env:
             - name: AWS_DEFAULT_REGION
               valueFrom:
-                secretKeyRef:
-                  name: resize-secret
+                configMapKeyRef:
+                  name: resize-cm
                   key: AWS_DEFAULT_REGION
             - name: QUEUE_NAME
               valueFrom:
-                secretKeyRef:
-                  name: resize-secret
+                configMapKeyRef:
+                  name: resize-cm
                   key: QUEUE_NAME
             - name: QUEUE_URL
               valueFrom:
-                secretKeyRef:
-                  name: resize-secret
+                configMapKeyRef:
+                  name: resize-cm
                   key: QUEUE_URL
             - name: BUCKET_NAME
               valueFrom:
-                secretKeyRef:
-                  name: resize-secret
+                configMapKeyRef:
+                  name: resize-cm
                   key: BUCKET_NAME
             - name: BUCKET_NAME_TMP
               valueFrom:
-                secretKeyRef:
-                  name: resize-secret
+                configMapKeyRef:
+                  name: resize-cm
                   key: BUCKET_NAME_TMP
           restartPolicy: OnFailure
   schedule: '*/1 * * * *'
