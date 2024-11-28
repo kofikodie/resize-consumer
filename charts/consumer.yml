@@ -45,7 +45,6 @@ spec:
                 configMapKeyRef:
                   name: resize-cm
                   key: BUCKET_NAME_TMP
-            
           restartPolicy: OnFailure
   schedule: '*/1 * * * *'
 status: {}
