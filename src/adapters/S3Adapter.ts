@@ -36,10 +36,6 @@ export default class S3Adapter implements S3AdapterInterface {
         bucketName: string,
         key: string
     ): Promise<Buffer | { error: string }> {
-        if (bucketName.length <= 0) {
-            throw new Error("S3_BUCKET_NAME not provided");
-        }
-
         const params = {
             Bucket: bucketName,
             Key: key,
@@ -62,10 +58,6 @@ export default class S3Adapter implements S3AdapterInterface {
         bucketName: string,
         key = randomUUID()
     ): Promise<{ success: string } | { error: string }> {
-        if (bucketName.length <= 0) {
-            throw new Error("S3_BUCKET_NAME not provided");
-        }
-
         const params = {
             Bucket: bucketName,
             Key: key,

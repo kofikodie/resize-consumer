@@ -71,9 +71,16 @@ async function processImageTask() {
 
 async function main() {
     try {
-        console.log(process.env.AWS_DEFAULT_REGION);
-        console.log(process.env.RUNNING_ENV);
-        await processImageTask();
+        if (
+            !process.env.QUEUE_NAME ||
+            !process.env.QUEUE_URL ||
+            !process.env.BUCKET_NAME ||
+            !process.env.BUCKET_NAME_TMP
+        ) {
+            console.log("MISSING Some or all env variables");
+        } else {
+            await processImageTask();
+        }
     } catch (err) {
         console.error("Fatal error in the script:", err);
         process.exit(1); // Exit with error code

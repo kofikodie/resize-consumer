@@ -70,10 +70,6 @@ export default class SQSAdapter implements SqsAdapterInterface {
     }
 
     public async deleteMessage(receiptHandle: string): Promise<void> {
-        if (!process.env.QUEUE_URL) {
-            throw new Error("QUEUE_URL not provided");
-        }
-
         const params: DeleteMessageRequest = {
             QueueUrl: process.env.QUEUE_URL,
             ReceiptHandle: receiptHandle,
