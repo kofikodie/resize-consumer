@@ -1,76 +1,32 @@
-import SQS, {
+import {
     Message as SqsMessageInterface,
-    CreateQueueRequest,
-    SendMessageRequest,
     ReceiveMessageRequest,
     DeleteMessageRequest,
-} from "aws-sdk/clients/sqs";
-import AWS from "aws-sdk";
+    SQSClient,
+    ReceiveMessageCommand,
+    DeleteMessageCommand,
+} from "@aws-sdk/client-sqs";
 import * as dotenv from "dotenv";
 import { SqsAdapterInterface } from "./SqsAdapterInterface";
 
 dotenv.config();
 
-interface Message {
-    Body: string;
-}
-
 export default class SQSAdapter implements SqsAdapterInterface {
-    private readonly sqs: SQS;
+    private readonly sqs: SQSClient;
 
     constructor() {
         if (process.env.RUNNING_ENV) {
-            AWS.config.update({
-                region: process.env.AWS_DEFAULT_REGION ?? "eu-west-1",
-            });
-            this.sqs = new SQS();
+            this.sqs = new SQSClient({});
         } else {
-            this.sqs = new SQS({
-                endpoint: new AWS.Endpoint(
-                    process.env.AWS_SERVICES_ENDPOINT ?? ""
-                ),
+            this.sqs = new SQSClient({
+                endpoint: process.env.AWS_SERVICES_ENDPOINT ?? "",
                 region: process.env.AWS_DEFAULT_REGION,
-                credentials: new AWS.Credentials(
-                    process.env.AWS_ACCESS_KEY_ID ?? "",
-                    process.env.AWS_SECRET_ACCESS_KEY ?? ""
-                ),
+                credentials: {
+                    accessKeyId: process.env.AWS_ACCESS_KEY_ID ?? "",
+                    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY ?? "",
+                },
             });
         }
-    }
-
-    public async listQueues(): Promise<string[]> {
-        const data = await this.sqs.listQueues({}).promise();
-        return data.QueueUrls ?? [];
-    }
-
-    public async createQueue(
-        queueName: string
-    ): Promise<string | { error: any }> {
-        const params: CreateQueueRequest = {
-            QueueName: queueName,
-        };
-        const data = await this.sqs.createQueue(params).promise();
-        if (data.QueueUrl) {
-            return data.QueueUrl;
-        }
-
-        return { error: data.$response.error };
-    }
-
-    public async sendMessage(
-        msg: Message
-    ): Promise<string | { error: string }> {
-        const params: SendMessageRequest = {
-            MessageBody: msg.Body,
-            QueueUrl: process.env.QUEUE_URL ?? "",
-        };
-        const data = await this.sqs.sendMessage(params).promise();
-
-        if (data.MessageId) {
-            return data.MessageId;
-        }
-
-        return { error: "Message not sent" };
     }
 
     public async getMessage(): Promise<
@@ -80,17 +36,37 @@ export default class SQSAdapter implements SqsAdapterInterface {
             QueueUrl: process.env.QUEUE_URL ?? "",
         };
 
-        const data = await this.sqs.receiveMessage(params).promise();
-        if (data.Messages && data.Messages.length > 0) {
-            if (data.Messages[0].Body) {
-                return {
-                    Body: data.Messages[0].Body,
-                    ReceiptHandle: data.Messages[0].ReceiptHandle!,
-                };
+        try {
+            const command = new ReceiveMessageCommand(params);
+            const data = await this.sqs.send(command);
+            if (data.Messages && data.Messages.length > 0) {
+                if (data.Messages[0].Body) {
+                    return {
+                        Body: data.Messages[0].Body,
+                        ReceiptHandle: data.Messages[0].ReceiptHandle!,
+                    };
+                }
             }
-        }
 
-        return { error: "Message not received" };
+            let error = ""; // Initialize an empty string
+            data.Messages?.forEach((element) => {
+                if (element.Body) {
+                    error += element.Body + "\n"; // Append each error followed by a newline
+                } 
+            });
+
+            if (error) {
+                return { error };
+            }
+
+            return {}
+        } catch (error: any) {
+            console.error(error);
+
+            return {
+                error: `${error.code}`,
+            };
+        }
     }
 
     public async deleteMessage(receiptHandle: string): Promise<void> {
@@ -102,6 +78,15 @@ export default class SQSAdapter implements SqsAdapterInterface {
             QueueUrl: process.env.QUEUE_URL,
             ReceiptHandle: receiptHandle,
         };
-        await this.sqs.deleteMessage(params).promise();
+
+        try {
+            const command = new DeleteMessageCommand(params);
+            await this.sqs.send(command);
+        } catch (error: unknown) {
+            //TODO logs or SNS
+            console.log({
+                error: `${error}`,
+            });
+        }
     }
 }

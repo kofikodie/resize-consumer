@@ -1,7 +1,14 @@
-import AWS, { S3 } from "aws-sdk";
+import AWS, {
+    DeleteObjectCommand,
+    GetObjectCommand,
+    PutObjectCommand,
+    S3,
+} from "@aws-sdk/client-s3";
 import { S3AdapterInterface } from "./S3AdapterInterface";
 import * as dotenv from "dotenv";
 import { randomUUID } from "crypto";
+import { StreamHelper } from "../stream-helpler";
+import { Readable } from "node:stream";
 
 dotenv.config();
 
@@ -15,16 +22,37 @@ export default class S3Adapter implements S3AdapterInterface {
             });
         } else {
             this.s3 = new S3({
-                endpoint: new AWS.Endpoint(
-                    process.env.AWS_SERVICES_ENDPOINT ?? ""
-                ),
-                s3ForcePathStyle: true,
+                endpoint: process.env.AWS_SERVICES_ENDPOINT ?? "",
                 region: process.env.AWS_DEFAULT_REGION,
-                credentials: new AWS.Credentials(
-                    process.env.AWS_ACCESS_KEY_ID ?? "",
-                    process.env.AWS_SECRET_ACCESS_KEY ?? ""
-                ),
+                credentials: {
+                    accessKeyId: process.env.AWS_ACCESS_KEY_ID ?? "",
+                    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY ?? "",
+                },
+                forcePathStyle: true,
             });
+        }
+    }
+    public async getImageByKey(
+        bucketName: string,
+        key: string
+    ): Promise<Buffer | { error: string }> {
+        if (bucketName.length <= 0) {
+            throw new Error("S3_BUCKET_NAME not provided");
+        }
+
+        const params = {
+            Bucket: bucketName,
+            Key: key,
+        };
+        try {
+            const command = new GetObjectCommand(params);
+            const result = await this.s3.send(command);
+
+            return await StreamHelper.streamToBuffer(result.Body as Readable);
+        } catch (error: unknown) {
+            return {
+                error: `${error}`,
+            };
         }
     }
 
@@ -33,7 +61,7 @@ export default class S3Adapter implements S3AdapterInterface {
         imageName: string,
         bucketName: string,
         key = randomUUID()
-    ): Promise<string> {
+    ): Promise<{ success: string } | { error: string }> {
         if (bucketName.length <= 0) {
             throw new Error("S3_BUCKET_NAME not provided");
         }
@@ -45,62 +73,20 @@ export default class S3Adapter implements S3AdapterInterface {
             Body: buffer,
         };
 
-        const result = await this.s3.upload(params).promise();
-        return result.Key;
-    }
+        try {
+            const command = new PutObjectCommand(params);
+            const result = await this.s3.send(command);
 
-    public async createBucket(bucketName: string) {
-        const params = {
-            Bucket: bucketName,
-        };
+            if (result.$metadata.httpStatusCode === 200) {
+                return {
+                    success: "Object uploaded successfully",
+                };
+            }
 
-        return this.s3
-            .createBucket(params)
-            .promise()
-            .then(() => {
-                return "Bucket created";
-            })
-            .catch((err) => {
-                if (err.code === "BucketAlreadyOwnedByYou") {
-                    return "Bucket already exists";
-                } else {
-                    throw new Error(err);
-                }
-            });
-    }
-
-    public async listBuckets(): Promise<string[]> {
-        const data = await this.s3.listBuckets().promise();
-
-        if (data.Buckets && data.Buckets.length > 0) {
-            return data.Buckets.map((bucket) => bucket.Name ?? "");
+            return { error: "Unable to upload object" };
+        } catch (error: unknown) {
+            return { error: `${error}` };
         }
-
-        return [];
-    }
-
-    public async getImageByKey(
-        bucketName: string,
-        key: string
-    ): Promise<Buffer | { error: string }> {
-        const params = {
-            Bucket: bucketName,
-            Key: key,
-        };
-
-        return this.s3
-            .getObject(params)
-            .promise()
-            .then((data) => {
-                if (data.Body) {
-                    return data.Body as Buffer;
-                }
-
-                return { error: "Image not found" };
-            })
-            .catch((err) => {
-                return { error: err };
-            });
     }
 
     public async deleteImageByKey(
@@ -112,6 +98,11 @@ export default class S3Adapter implements S3AdapterInterface {
             Key: key,
         };
 
-        await this.s3.deleteObject(params).promise();
+        try {
+            const command = new DeleteObjectCommand(params);
+            await this.s3.send(command);
+        } catch (error: unknown) {
+            console.error({ error: `${error}` });
+        }
     }
 }

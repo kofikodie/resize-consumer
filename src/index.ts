@@ -18,6 +18,10 @@ async function processImageTask() {
         !imageKey.Body ||
         !imageKey.ReceiptHandle
     ) {
+        if ("error" in imageKey) {
+            console.error(imageKey.error);
+            return;
+        }
         console.log("No message found");
         return;
     }
@@ -70,7 +74,6 @@ async function main() {
         console.log(process.env.AWS_DEFAULT_REGION);
         console.log(process.env.RUNNING_ENV);
         await processImageTask();
-        console.log("Task completed successfully.");
     } catch (err) {
         console.error("Fatal error in the script:", err);
         process.exit(1); // Exit with error code
