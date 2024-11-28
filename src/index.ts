@@ -3,13 +3,7 @@ import SQSAdapter from "./adapters/SqsAdapter";
 import ResizeImageAdapter from "./adapters/ResizeImageAdapter";
 
 async function processImageTask() {
-    if (!process.env.BUCKET_NAME || !process.env.BUCKET_NAME_TMP) {
-        console.log("BUCKET_NAME not provided");
-        return;
-    }
-
     const sqs = new SQSAdapter();
-
     const imageKey = await sqs.getMessage();
 
     if (
@@ -29,7 +23,7 @@ async function processImageTask() {
     const s3 = new S3Adapter();
 
     const imageBuffer = await s3.getImageByKey(
-        process.env.BUCKET_NAME_TMP,
+        process.env.BUCKET_NAME_TMP ?? "",
         imageKey.Body
     );
     if ("error" in imageBuffer) {
@@ -51,7 +45,7 @@ async function processImageTask() {
     const newKey = await s3.storeImage(
         resizedBuffer,
         `resized_${imageKey.Body}`,
-        process.env.BUCKET_NAME,
+        process.env.BUCKET_NAME ?? "",
         imageKey.Body
     );
 
@@ -60,7 +54,7 @@ async function processImageTask() {
     );
 
     Promise.all([
-        s3.deleteImageByKey(process.env.BUCKET_NAME_TMP, imageKey.Body),
+        s3.deleteImageByKey(process.env.BUCKET_NAME_TMP ?? "", imageKey.Body),
         sqs.deleteMessage(imageKey.ReceiptHandle),
     ]).then(() => {
         console.log(
@@ -75,10 +69,18 @@ async function main() {
             !process.env.QUEUE_NAME ||
             !process.env.QUEUE_URL ||
             !process.env.BUCKET_NAME ||
-            !process.env.BUCKET_NAME_TMP
+            !process.env.BUCKET_NAME_TMP ||
+            !process.env.AWS_DEFAULT_REGION
         ) {
             console.log("MISSING Some or all env variables");
         } else {
+            console.log(
+                process.env.QUEUE_NAME,
+                process.env.QUEUE_URL,
+                process.env.BUCKET_NAME,
+                process.env.BUCKET_NAME_TMP,
+                process.env.AWS_DEFAULT_REGION
+            );
             await processImageTask();
         }
     } catch (err) {

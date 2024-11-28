@@ -16,7 +16,9 @@ export default class SQSAdapter implements SqsAdapterInterface {
 
     constructor() {
         if (process.env.RUNNING_ENV) {
-            this.sqs = new SQSClient({});
+            this.sqs = new SQSClient({
+                region: process.env.AWS_DEFAULT_REGION,
+            });
         } else {
             this.sqs = new SQSClient({
                 endpoint: process.env.AWS_SERVICES_ENDPOINT ?? "",
@@ -52,14 +54,14 @@ export default class SQSAdapter implements SqsAdapterInterface {
             data.Messages?.forEach((element) => {
                 if (element.Body) {
                     error += element.Body + "\n"; // Append each error followed by a newline
-                } 
+                }
             });
 
             if (error) {
                 return { error };
             }
 
-            return {}
+            return {};
         } catch (error: any) {
             console.error(error);
 
