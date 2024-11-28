@@ -36,7 +36,7 @@ jobs:
       - name: Build, tag, and push image to ECR
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: resize-config
+          ECR_REPOSITORY: resize-cluster
           IMAGE_TAG: ${{ steps.commit_sha.outputs.sha }}
         run: |
           docker buildx create --use
@@ -47,7 +47,7 @@ jobs:
       - name: Update Argo CI manifest
         run: |
           ls
-          sed -i "s|image: .*|image: ${{ steps.login-ecr.outputs.registry }}/resize-config:${{ steps.commit_sha.outputs.sha }}|g" charts/consumer.yml
+          sed -i "s|image: .*|image: ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:${{ steps.commit_sha.outputs.sha }}|g" charts/consumer.yml
 
       - name: Commit and push changes
         uses: devops-infra/action-commit-push@v0.9.2
