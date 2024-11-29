@@ -33,6 +33,8 @@ async function processImageTask() {
             imageBuffer.error,
             imageKey
         );
+        await sqs.deleteMessage(imageKey.ReceiptHandle);
+
         return;
     }
 
