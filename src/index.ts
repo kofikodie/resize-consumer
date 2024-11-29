@@ -74,13 +74,6 @@ async function main() {
         ) {
             console.log("MISSING Some or all env variables");
         } else {
-            console.log(
-                process.env.QUEUE_NAME,
-                process.env.QUEUE_URL,
-                process.env.BUCKET_NAME,
-                process.env.BUCKET_NAME_TMP,
-                process.env.AWS_DEFAULT_REGION
-            );
             await processImageTask();
         }
     } catch (err) {
