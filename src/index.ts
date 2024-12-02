@@ -80,7 +80,7 @@ async function main() {
         }
     } catch (err) {
         console.error("Fatal error in the script:", err);
-        process.exit(1); // Exit with error code
+        process.exit(1);
     }
 }
 
