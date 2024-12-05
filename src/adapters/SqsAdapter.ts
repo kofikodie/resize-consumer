@@ -50,10 +50,10 @@ export default class SQSAdapter implements SqsAdapterInterface {
                 }
             }
 
-            let error = ""; // Initialize an empty string
+            let error = "";
             data.Messages?.forEach((element) => {
                 if (element.Body) {
-                    error += element.Body + "\n"; // Append each error followed by a newline
+                    error += element.Body + "\n";
                 }
             });
 
