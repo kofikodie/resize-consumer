@@ -81,7 +81,6 @@ export default class SQSAdapter implements SqsAdapterInterface {
             const command = new DeleteMessageCommand(params);
             await this.sqs.send(command);
         } catch (error: unknown) {
-            //TODO logs or SNS
             console.log({
                 error: `${error}`,
             });
