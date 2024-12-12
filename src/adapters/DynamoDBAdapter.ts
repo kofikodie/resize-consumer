@@ -13,7 +13,7 @@ export default class DynamoDBAdapter implements DynamoDBAdapterInterface {
     private readonly tableName = "image_metadata";
     private readonly logger: LoggerInterface;
 
-    constructor(logger: LoggerInterface) {
+    constructor(logger: LoggerInterface, tableName: string) {
         this.logger = logger;
 
         try {
