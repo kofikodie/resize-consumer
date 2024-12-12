@@ -9,13 +9,18 @@ import * as dotenv from "dotenv";
 import { randomUUID } from "crypto";
 import { StreamHelper } from "../stream-helpler";
 import { Readable } from "node:stream";
+import { LoggerService } from "../utils/logger/LoggerService";
+import { LoggerInterface } from "../utils/logger/LoggerInterface";
 
 dotenv.config();
 
 export default class S3Adapter implements S3AdapterInterface {
     private readonly s3: S3;
+    private readonly logger: LoggerInterface;
 
-    constructor() {
+    constructor(logger: LoggerInterface) {
+        this.logger = logger;
+
         if (process.env.RUNNING_ENV) {
             this.s3 = new S3({
                 region: process.env.AWS_DEFAULT_REGION ?? "eu-west-1",
@@ -46,8 +51,14 @@ export default class S3Adapter implements S3AdapterInterface {
 
             return await StreamHelper.streamToBuffer(result.Body as Readable);
         } catch (error: unknown) {
+            this.logger.error("[S3Adapter] Failed to get image", {
+                bucket: bucketName,
+                key,
+                error: error instanceof Error ? error.message : String(error),
+                stack: error instanceof Error ? error.stack : undefined,
+            });
             return {
-                error: `${error}`,
+                error: error instanceof Error ? error.message : String(error),
             };
         }
     }
@@ -70,21 +81,37 @@ export default class S3Adapter implements S3AdapterInterface {
             const result = await this.s3.send(command);
 
             if (result.$metadata.httpStatusCode === 200) {
+                this.logger.info("[S3Adapter] Successfully uploaded image", {
+                    bucket: bucketName,
+                    key,
+                    imageName,
+                });
                 return {
                     success: "Object uploaded successfully",
                 };
             }
 
-            return { error: "Unable to upload object" };
+            throw new Error(
+                `Upload failed with status code: ${result.$metadata.httpStatusCode}`
+            );
         } catch (error: unknown) {
-            return { error: `${error}` };
+            this.logger.error("[S3Adapter] Failed to store image", {
+                bucket: bucketName,
+                key,
+                imageName,
+                error: error instanceof Error ? error.message : String(error),
+                stack: error instanceof Error ? error.stack : undefined,
+            });
+            return {
+                error: error instanceof Error ? error.message : String(error),
+            };
         }
     }
 
     public async deleteImageByKey(
         bucketName: string,
         key: string
-    ): Promise<void> {
+    ): Promise<{ success: boolean; error?: string }> {
         const params = {
             Bucket: bucketName,
             Key: key,
@@ -93,8 +120,22 @@ export default class S3Adapter implements S3AdapterInterface {
         try {
             const command = new DeleteObjectCommand(params);
             await this.s3.send(command);
+            this.logger.info("[S3Adapter] Successfully deleted image", {
+                bucket: bucketName,
+                key,
+            });
+            return { success: true };
         } catch (error: unknown) {
-            console.error({ error: `${error}` });
+            this.logger.error("[S3Adapter] Failed to delete image", {
+                bucket: bucketName,
+                key,
+                error: error instanceof Error ? error.message : String(error),
+                stack: error instanceof Error ? error.stack : undefined,
+            });
+            return {
+                success: false,
+                error: error instanceof Error ? error.message : String(error),
+            };
         }
     }
 }

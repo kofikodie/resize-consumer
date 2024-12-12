@@ -8,5 +8,8 @@ export interface S3AdapterInterface {
         bucketName: string,
         key: string
     ): Promise<Buffer | { error: string }>;
-    deleteImageByKey(bucketName: string, key: string): Promise<void>;
+    deleteImageByKey(
+        bucketName: string,
+        key: string
+    ): Promise<{ success: boolean; error?: string }>;
 }

@@ -1,9 +1,10 @@
 import S3Adapter from "./adapters/S3Adapter";
 import SQSAdapter from "./adapters/SqsAdapter";
 import ResizeImageAdapter from "./adapters/ResizeImageAdapter";
+import { LoggerService } from "./utils/logger/LoggerService";
 
 async function processImageTask() {
-    const sqs = new SQSAdapter();
+    const sqs = new SQSAdapter(LoggerService.getInstance());
     const imageKey = await sqs.getMessage();
 
     if (
@@ -20,7 +21,7 @@ async function processImageTask() {
         return;
     }
 
-    const s3 = new S3Adapter();
+    const s3 = new S3Adapter(LoggerService.getInstance());
 
     const imageBuffer = await s3.getImageByKey(
         process.env.BUCKET_NAME_TMP ?? "",
@@ -33,7 +34,10 @@ async function processImageTask() {
             imageBuffer.error,
             imageKey
         );
-        await sqs.deleteMessage(imageKey.ReceiptHandle);
+        const deleteResult = await sqs.deleteMessage(imageKey.ReceiptHandle);
+        if ("error" in deleteResult) {
+            console.error("Error deleting message", deleteResult.error);
+        }
 
         return;
     }
