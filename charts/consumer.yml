@@ -15,7 +15,7 @@ spec:
         spec:
           serviceAccountName: s3-account
           containers:
-          - image: 317884193661.dkr.ecr.eu-west-1.amazonaws.com/resize-cluster:115d7487f3e9223d4552318743b03055b92ded1e
+          - image: 317884193661.dkr.ecr.eu-west-1.amazonaws.com/resize-cluster:b005c1bc4d0169098d5f383c85b7da1813fdb5b6
             name: resize-consumer
             command: ["node", "index.js"] 
             resources: {}
