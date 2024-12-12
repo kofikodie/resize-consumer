@@ -1,6 +1,6 @@
-import winston from 'winston';
-import { LoggerConfig, defaultConfig } from './LoggerConfig';
-import { LoggerInterface } from './LoggerInterface';
+import winston from "winston";
+import { LoggerConfig, defaultConfig } from "./LoggerConfig";
+import { LoggerInterface } from "./LoggerInterface";
 
 export class LoggerService implements LoggerInterface {
     private static instance: LoggerService;
@@ -34,8 +34,8 @@ export class LoggerService implements LoggerInterface {
     }
 
     public logApiRequest(
-        method: string, 
-        path: string, 
+        method: string,
+        path: string,
         meta?: Record<string, unknown>
     ): void {
         this.info(`API Request: ${method} ${path}`, meta);
@@ -57,7 +57,7 @@ export class LoggerService implements LoggerInterface {
         this.error(`${context}: ${error.message}`, {
             ...meta,
             stack: error.stack,
-            name: error.name
+            name: error.name,
         });
     }
-} 
+}

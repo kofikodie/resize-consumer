@@ -1,89 +1,18 @@
-import S3Adapter from "./adapters/S3Adapter";
-import SQSAdapter from "./adapters/SqsAdapter";
-import ResizeImageAdapter from "./adapters/ResizeImageAdapter";
+import { ImageProcessorService } from "./service/image-processor.service";
 import { LoggerService } from "./utils/logger/LoggerService";
 
-async function processImageTask() {
-    const sqs = new SQSAdapter(LoggerService.getInstance());
-    const imageKey = await sqs.getMessage();
-
-    if (
-        !imageKey ||
-        "error" in imageKey ||
-        !imageKey.Body ||
-        !imageKey.ReceiptHandle
-    ) {
-        if ("error" in imageKey) {
-            console.error(imageKey.error);
-            return;
-        }
-        console.log("No message found");
-        return;
-    }
-
-    const s3 = new S3Adapter(LoggerService.getInstance());
-
-    const imageBuffer = await s3.getImageByKey(
-        process.env.BUCKET_NAME_TMP ?? "",
-        imageKey.Body
-    );
-    if ("error" in imageBuffer) {
-        console.log(
-            "Error downloading image",
-            imageKey.Body,
-            imageBuffer.error,
-            imageKey
-        );
-        const deleteResult = await sqs.deleteMessage(imageKey.ReceiptHandle);
-        if ("error" in deleteResult) {
-            console.error("Error deleting message", deleteResult.error);
-        }
-
-        return;
-    }
-
-    const resizedBuffer = await new ResizeImageAdapter().resizeImage(
-        imageBuffer,
-        100,
-        100
-    );
-    console.log(imageBuffer);
-    const newKey = await s3.storeImage(
-        resizedBuffer,
-        `resized_${imageKey.Body}`,
-        process.env.BUCKET_NAME ?? "",
-        imageKey.Body
-    );
-
-    console.log(
-        `Image resized and stored in ${process.env.BUCKET_NAME} with key ${newKey}`
-    );
-
-    Promise.all([
-        s3.deleteImageByKey(process.env.BUCKET_NAME_TMP ?? "", imageKey.Body),
-        sqs.deleteMessage(imageKey.ReceiptHandle),
-    ]).then(() => {
-        console.log(
-            "Image deleted from tmp bucket and message deleted from queue"
-        );
-    });
-}
-
 async function main() {
+    const logger = LoggerService.getInstance();
+    const processor = new ImageProcessorService(logger);
+
     try {
-        if (
-            !process.env.QUEUE_NAME ||
-            !process.env.QUEUE_URL ||
-            !process.env.BUCKET_NAME ||
-            !process.env.BUCKET_NAME_TMP ||
-            !process.env.AWS_DEFAULT_REGION
-        ) {
-            console.log("MISSING Some or all env variables");
-        } else {
-            await processImageTask();
-        }
-    } catch (err) {
-        console.error("Fatal error in the script:", err);
+        processor.validateEnvironment();
+        await processor.processImageTask();
+    } catch (error) {
+        logger.error("Fatal error in main process", {
+            error: error instanceof Error ? error.message : String(error),
+            stack: error instanceof Error ? error.stack : undefined
+        });
         process.exit(1);
     }
 }
