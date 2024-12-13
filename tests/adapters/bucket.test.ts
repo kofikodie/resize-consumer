@@ -51,7 +51,6 @@ describe("BucketAdapter", () => {
             key
         );
 
-        //check if the error is a ClientError
         expect(result.error).toBeInstanceOf(ClientError);
         expect(result.error?.message).toBe("Failed to store object");
         expect(result.error?.name).toBe("Failed to store object");
