@@ -92,4 +92,21 @@ describe("BucketAdapter", () => {
 
         expect(result.success).toBe(false);
     });
+
+
+    it("should NOT be able to get an image given an invalid key", async () => {
+        const bucketAdapter = new BucketAdapter(logger, new BucketClientMock());
+        const bucketName = "test";
+        const key = "invalid";
+        const result = await bucketAdapter.getImageByKey(bucketName, key);
+
+        expect(result.error).toBeInstanceOf(ClientError);
+        expect(result.error?.message).toBe("Failed to get object");
+        expect(result.error?.name).toBe("Failed to get object");
+        expect(result.error?.stack).toContain(
+            "Object not found Error: Object not found"
+        );
+
+        expect(result.success).toBe(false);
+    });
 });
