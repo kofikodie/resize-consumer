@@ -12,10 +12,8 @@ dotenv.config();
 
 export default class BucketAdapter implements BucketAdapterInterface {
     private readonly bucketClient: BucketClientInterface;
-    private readonly logger: LoggerInterface;
 
-    constructor(logger: LoggerInterface, bucketClient: BucketClientInterface) {
-        this.logger = logger;
+    constructor(bucketClient: BucketClientInterface) {
         this.bucketClient = bucketClient;
     }
     public async getImageByKey(
