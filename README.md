@@ -74,18 +74,18 @@ docker-compose up -d
 
 ### Local Setup
 ```bash
-npm install
-npm run start:consumer
+docker compose run install
+docker compose run start:consumer
 ```
 
 ### Testing
 ```bash
-npm test
+docker compose run test
 ```
 
 ### Building
 ```bash
-npm run build
+docker compose build
 ```
 
 ## Project Structure
