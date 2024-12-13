@@ -2,32 +2,105 @@
 
 ## Overview
 
-This project is a consumer application designed to process images stored in an AWS S3 bucket. It works by consuming S3 object keys from an AWS SQS queue, fetching the corresponding images from a temporary S3 bucket, resizing them, and then uploading the processed images to a primary S3 bucket.
+This project is a microservice designed to process images stored in AWS S3 buckets. It follows a message-driven architecture, consuming S3 object keys from an AWS SQS queue, processing the images, and managing their metadata in DynamoDB.
+
+## Architecture
+
+### Core Components
+- **Queue Consumer**: Listens to SQS for image processing requests
+- **Image Processor**: Downloads, resizes, and uploads images
+- **Metadata Manager**: Tracks image status in DynamoDB
+- **Storage Manager**: Handles S3 bucket operations
+
+### Design Patterns
+- **Chain of Responsibility**: For image processing pipeline
+- **Adapter Pattern**: For AWS service integrations
+- **Singleton**: For logging service
+- **Ports and Adapters**: For clean architecture
 
 ## Features
 
-- **SQS Consumer**: Listens to an SQS queue for incoming messages containing S3 object keys.
-- **Image Processing**: Downloads the image, resizes it, and processes it according to defined configurations.
-- **S3 Integration**: Fetches images from a temporary S3 bucket and stores the resized images in a primary S3 bucket.
-- **Dockerized**: The application runs in a Docker container for easy deployment and isolation.
+- Asynchronous image processing via SQS
+- Automatic image resizing with configurable dimensions
+- Metadata tracking in DynamoDB
+- Structured logging with Winston
+- Error handling and retry mechanisms
+- Docker containerization
+- Clean architecture with dependency injection
 
----
+## Prerequisites
 
-## Getting Started
+- Docker and Docker Compose
+- Node.js 18+ (for local development)
+- AWS Account with:
+  - S3 buckets (temporary and primary storage)
+  - SQS queue
+  - DynamoDB table
+  - IAM permissions
 
-### Prerequisites
-
-Ensure you have the following installed:
-
-- [Docker](https://www.docker.com/) (for running the application)
-- AWS credentials configured (e.g., in `~/.aws/credentials` or via environment variables)
-- An S3 bucket for temporary storage
-- An S3 bucket for primary storage
-- An SQS queue with properly configured permissions
+## Configuration
 
 ### Environment Variables
 
-Create a `.env` file in the project root directory and populate it with the following variables:
-
 ```bash
-    cp env.dist .env
+cp env.dist .env
+```
+
+## Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/s3-image-resizer.git
+cd s3-image-resizer
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Configure environment:
+```bash
+cp .env.dist .env
+# Edit .env with your configuration
+```
+
+4. Run with Docker:
+```bash
+docker-compose up -d
+```
+
+## Development
+
+### Local Setup
+```bash
+npm install
+npm run start:consumer
+```
+
+### Testing
+```bash
+npm test
+```
+
+### Building
+```bash
+npm run build
+```
+
+## Project Structure
+
+```
+src/
+├── adapters/          # Cloud service adapters
+├── client/           # Cloud SDK clients
+├── service/          # Business logic
+│   └── handlers/     # Processing chain handlers
+├── utils/            # Utilities
+│   └── logger/       # Logging configuration
+└── index.ts          # Application entry point
+```
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
