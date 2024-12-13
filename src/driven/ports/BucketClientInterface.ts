@@ -12,6 +12,6 @@ export type ParamsType = {
 
 export type BucketClientResultType = {
     success: boolean;
-    error?: ClientError;
+    error?: unknown;
     result?: Buffer;
 };

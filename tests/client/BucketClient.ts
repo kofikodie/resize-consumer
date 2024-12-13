@@ -8,28 +8,22 @@ import {
 } from "../../src/driven/ports/BucketClientInterface";
 
 export class BucketClientMock implements BucketClientInterface {
-    putObject(params: ParamsType): Promise<BucketClientResultType> {
+    public async putObject(params: ParamsType): Promise<BucketClientResultType> {
         if (params.Bucket === "test") {
             return Promise.resolve({ success: true });
         }
         return Promise.resolve({
             success: false,
-            error: new ClientError("Bucket not found", {
-                name: "BucketClientError",
-                stack: "BucketClientMock.putObject",
-            }),
+            error: new Error("Bucket not found"),
         });
     }
-    deleteObject(params: ParamsType): Promise<BucketClientResultType> {
+    public async deleteObject(params: ParamsType): Promise<BucketClientResultType> {
         if (params.Bucket === "test") {
             return Promise.resolve({ success: true });
         }
         return Promise.resolve({
             success: false,
-            error: new ClientError("Bucket not found", {
-                name: "BucketClientError",
-                stack: "BucketClientMock.deleteObject",
-            }),
+            error: new Error("Bucket not found"),
         });
     }
     public async getObject(params: ParamsType): Promise<any> {
@@ -41,10 +35,7 @@ export class BucketClientMock implements BucketClientInterface {
         }
         return Promise.resolve({
             success: false,
-            error: new ClientError("Bucket not found", {
-                name: "BucketClientError",
-                stack: "BucketClientMock.getObject",
-            }),
+            error: new Error("Bucket not found"),
         });
     }
 }

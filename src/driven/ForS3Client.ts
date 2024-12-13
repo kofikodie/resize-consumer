@@ -47,10 +47,7 @@ export default class S3Client implements BucketClientInterface {
         } catch (error: unknown) {
             return {
                 success: false,
-                error: new ClientError("Failed to delete object", {
-                    name: "Failed to delete object",
-                    stack: `${JSON.stringify(error)}`,
-                }),
+                error,
             };
         }
     }
@@ -75,10 +72,7 @@ export default class S3Client implements BucketClientInterface {
         } catch (error: unknown) {
             return {
                 success: false,
-                error: new ClientError("Failed to upload object", {
-                    name: "Failed to upload object",
-                    stack: `${JSON.stringify(error)}`,
-                }),
+                error,
             };
         }
     }
@@ -98,10 +92,7 @@ export default class S3Client implements BucketClientInterface {
         } catch (error: unknown) {
             return {
                 success: false,
-                error: new ClientError("Failed to get object", {
-                    name: "Failed to get object",
-                    stack: `${JSON.stringify(error)}`,
-                }),
+                error,
             };
         }
     }

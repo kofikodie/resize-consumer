@@ -6,6 +6,7 @@ import * as dotenv from "dotenv";
 import { randomUUID } from "crypto";
 import { LoggerInterface } from "../utils/logger/LoggerInterface";
 import { BucketClientInterface } from "../driven/ports/BucketClientInterface";
+import { ClientError } from "../driven/ClientError";
 
 dotenv.config();
 
@@ -27,12 +28,16 @@ export default class BucketAdapter implements BucketAdapterInterface {
         });
 
         if (!result.success) {
-            this.logger.error("[BucketAdapter] Failed to get image", {
-                bucket: bucketName,
-                key,
-                error: `${JSON.stringify(result.error)}`,
-            });
-            return { success: false };
+            return {
+                success: false,
+                error: new ClientError("Failed to get object", {
+                    name: "Failed to get object",
+                    stack:
+                        result.error instanceof Error
+                            ? `${result.error.message} ${result.error.stack} ${result.error.name}`
+                            : String(result.error),
+                }),
+            };
         }
         return { success: true, result: result.result };
     }
@@ -53,12 +58,16 @@ export default class BucketAdapter implements BucketAdapterInterface {
         const result = await this.bucketClient.putObject(params);
 
         if (!result.success) {
-            this.logger.error("[BucketAdapter] Failed to store image", {
-                bucket: bucketName,
-                key,
-                error: `${JSON.stringify(result.error)}`,
-            });
-            return { success: false };
+            return {
+                success: false,
+                error: new ClientError("Failed to store object", {
+                    name: "Failed to store object",
+                    stack:
+                        result.error instanceof Error
+                            ? `${result.error.message} ${result.error.stack} ${result.error.name}`
+                            : String(result.error),
+                }),
+            };
         }
         return { success: true };
     }
@@ -73,12 +82,16 @@ export default class BucketAdapter implements BucketAdapterInterface {
         });
 
         if (!result.success) {
-            this.logger.error("[BucketAdapter] Failed to delete image", {
-                bucket: bucketName,
-                key,
-                error: `${JSON.stringify(result.error)}`,
-            });
-            return { success: false };
+            return {
+                success: false,
+                error: new ClientError("Failed to delete object", {
+                    name: "Failed to delete object",
+                    stack:
+                        result.error instanceof Error
+                            ? `${result.error.message} ${result.error.stack} ${result.error.name}`
+                            : String(result.error),
+                }),
+            };
         }
         return { success: true };
     }

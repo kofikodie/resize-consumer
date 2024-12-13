@@ -1,6 +1,5 @@
-//write tests for the bucket adapter
-
 import BucketAdapter from "../../src/adapters/BucketAdapter";
+import { ClientError } from "../../src/driven/ClientError";
 import { LoggerService } from "../../src/utils/logger/LoggerService";
 import { BucketClientMock } from "../client/BucketClient";
 
@@ -52,6 +51,13 @@ describe("BucketAdapter", () => {
             key
         );
 
+        //check if the error is a ClientError
+        expect(result.error).toBeInstanceOf(ClientError);
+        expect(result.error?.message).toBe("Failed to store object");
+        expect(result.error?.name).toBe("Failed to store object");
+        expect(result.error?.stack).toContain(
+            "Bucket not found Error: Bucket not found"
+        );
         expect(result.success).toBe(false);
     });
 
@@ -60,6 +66,14 @@ describe("BucketAdapter", () => {
         const bucketName = "invalid";
         const key = "test";
         const result = await bucketAdapter.getImageByKey(bucketName, key);
+
+        expect(result.error).toBeInstanceOf(ClientError);
+        expect(result.error?.message).toBe("Failed to get object");
+        expect(result.error?.name).toBe("Failed to get object");
+        expect(result.error?.stack).toContain(
+            "Bucket not found Error: Bucket not found"
+        );
+
         expect(result.success).toBe(false);
     });
 
@@ -68,6 +82,14 @@ describe("BucketAdapter", () => {
         const bucketName = "invalid";
         const key = "test";
         const result = await bucketAdapter.deleteImageByKey(bucketName, key);
+
+        expect(result.error).toBeInstanceOf(ClientError);
+        expect(result.error?.message).toBe("Failed to delete object");
+        expect(result.error?.name).toBe("Failed to delete object");
+        expect(result.error?.stack).toContain(
+            "Bucket not found Error: Bucket not found"
+        );
+
         expect(result.success).toBe(false);
     });
 });
