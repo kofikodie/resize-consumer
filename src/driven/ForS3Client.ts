@@ -12,14 +12,11 @@ import {
 import { StreamHelper } from "../stream-helpler";
 import { Readable } from "node:stream";
 import { LoggerInterface } from "../utils/logger/LoggerInterface";
-import { ClientError } from "./ClientError";
 
 export default class S3Client implements BucketClientInterface {
     public readonly s3Client: S3;
-    private readonly logger: LoggerInterface;
 
-    constructor(logger: LoggerInterface) {
-        this.logger = logger;
+    constructor() {
         if (process.env.NODE_ENV === "development") {
             this.s3Client = new S3({
                 region: process.env.AWS_DEFAULT_REGION ?? "eu-west-1",
@@ -64,10 +61,9 @@ export default class S3Client implements BucketClientInterface {
 
             return {
                 success: false,
-                error: new ClientError("Upload failed", {
-                    name: "Upload failed",
-                    stack: `${JSON.stringify(params)}`,
-                }),
+                error: new Error(
+                    `Upload failed with status code ${result.$metadata.httpStatusCode}`
+                ),
             };
         } catch (error: unknown) {
             return {
