@@ -1,13 +1,10 @@
-//write a mock for the bucket client that implements the BucketClientInterface
-
-import { ClientError } from "../../src/driven/ClientError";
 import {
     BucketClientInterface,
     BucketClientResultType,
     ParamsType,
 } from "../../src/driven/ports/BucketClientInterface";
 
-export class BucketClientMock implements BucketClientInterface {
+export class ForS3ClientMock implements BucketClientInterface {
     public async putObject(
         params: ParamsType
     ): Promise<BucketClientResultType> {

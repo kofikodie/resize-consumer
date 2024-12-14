@@ -11,7 +11,6 @@ import {
 } from "./ports/BucketClientInterface";
 import { StreamHelper } from "../stream-helpler";
 import { Readable } from "node:stream";
-import { LoggerInterface } from "../utils/logger/LoggerInterface";
 
 export default class S3Client implements BucketClientInterface {
     public readonly s3Client: S3;
