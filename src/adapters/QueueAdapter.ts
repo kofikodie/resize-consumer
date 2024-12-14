@@ -29,7 +29,8 @@ export default class QueueAdapter implements QueueAdapterInterface {
                 }),
             };
         }
-        return { success: true, result: result.messages[0] };
+
+        return { success: true, result: result.messages };
     }
 
     public async deleteMessage(

@@ -13,6 +13,6 @@ export interface QueueAdapterInterface {
 
 export type QueueAdapterResultType = {
     success: boolean;
-    result?: Message;
+    result?: Message[];
     error?: ClientError;
 };
