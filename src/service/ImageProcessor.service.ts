@@ -21,6 +21,7 @@ export class ImageProcessorService {
             "BUCKET_NAME",
             "BUCKET_NAME_TMP",
             "AWS_DEFAULT_REGION",
+            "TABLE_NAME",
         ];
 
         const missingVars = requiredEnvVars.filter(
@@ -39,8 +40,10 @@ export class ImageProcessorService {
     public async processImageTask(): Promise<void> {
         try {
             const context: ProcessingContext = {
+                queueUrl: process.env.QUEUE_URL || "",
                 imageKey: "",
                 receiptHandle: "",
+                tableName: process.env.TABLE_NAME || "",
             };
 
             const success = await this.processingChain.handle(context);
