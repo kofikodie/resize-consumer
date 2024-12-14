@@ -4,7 +4,7 @@ import {
     MetadataDbClientResultType,
 } from "../../src/driven/ports/MetadataDbClientInterface";
 
-export class MetadataDbClient implements MetaDataDbClientInterface {
+export class ForDynamoDbClientMock implements MetaDataDbClientInterface {
     updateStatus(
         id: string,
         status: string,

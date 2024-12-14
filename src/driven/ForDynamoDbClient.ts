@@ -4,7 +4,6 @@ import {
     UpdateItemCommand,
     AttributeValue,
 } from "@aws-sdk/client-dynamodb";
-import { ClientError } from "./ClientError";
 import {
     MetaDataDbClientInterface,
     MetadataDbClientResultType,
