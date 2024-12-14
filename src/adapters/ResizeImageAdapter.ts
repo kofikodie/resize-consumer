@@ -1,30 +1,52 @@
-import sharp from "sharp";
-import { LoggerInterface } from "../utils/logger/LoggerInterface";
+import {
+    ResizeImageAdapterInterface,
+    ResizeImageAdapterResult,
+} from "./ports/ResizeImageAdapterInterface";
+import { ImageProcessorInterface } from "../driven/ports/ImageProcessorInterface";
+import { ClientError } from "../driven/ClientError";
 
 export default class ResizeImageAdapter implements ResizeImageAdapterInterface {
-    private readonly logger: LoggerInterface;
+    private readonly imageProcessor: ImageProcessorInterface;
 
-    constructor(logger: LoggerInterface) {
-        this.logger = logger;
+    constructor(imageProcessor: ImageProcessorInterface) {
+        this.imageProcessor = imageProcessor;
     }
 
-    resizeImage(imageBuffer: Buffer, width: number, height: number) {
-        this.logger.info("Resizing image", { width, height });
-        try {
-            return sharp(imageBuffer).resize(width, height).toBuffer();
-        } catch (error) {
-            this.logger.error("Error resizing image", {
-                error: error instanceof Error ? error.message : String(error),
-            });
-            throw error;
-        }
-    }
-}
-
-export interface ResizeImageAdapterInterface {
-    resizeImage(
+    async resizeImage(
         imageBuffer: Buffer,
         width: number,
         height: number
-    ): Promise<Buffer>;
+    ): Promise<ResizeImageAdapterResult> {
+        try {
+            const result = await this.imageProcessor.resize(
+                imageBuffer,
+                width,
+                height
+            );
+            if (!result.success) {
+                return {
+                    success: false,
+                    error: new ClientError("Failed to resize image", {
+                        name: "Failed to resize image",
+                        stack:
+                            result.error instanceof Error
+                                ? `${result.error.message} ${result.error.stack} ${result.error.name}`
+                                : String(result.error),
+                    }),
+                };
+            }
+            return { success: true, imageBuffer: result.imageBuffer };
+        } catch (error) {
+            return {
+                success: false,
+                error: new ClientError("Failed to resize image", {
+                    name: "Failed to resize image",
+                    stack:
+                        error instanceof Error
+                            ? `${error.message} ${error.stack} ${error.name}`
+                            : String(error),
+                }),
+            };
+        }
+    }
 }
