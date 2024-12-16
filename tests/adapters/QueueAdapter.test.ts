@@ -6,14 +6,14 @@ import { ForSqsClientMock } from "../ports/ForSqsClient";
 describe("QueueAdapter", () => {
     it("should be able to get a message from the queue given a valid queue url", async () => {
         const queueAdapter = new QueueAdapter(new ForSqsClientMock());
-        const queueUrl = "test";
+        const queueUrl = process.env.QUEUE_URL || "";
         const result = await queueAdapter.getMessage(queueUrl);
         expect(result.success).toBe(true);
     });
 
     it("should be able to delete a message from the queue given a valid queue url and receipt handle", async () => {
         const queueAdapter = new QueueAdapter(new ForSqsClientMock());
-        const queueUrl = "test";
+        const queueUrl = process.env.QUEUE_URL || "";
         const receiptHandle = "test";
         const result = await queueAdapter.deleteMessage(
             queueUrl,

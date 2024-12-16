@@ -9,10 +9,16 @@ export class ForSqsClientMock implements QueueClientInterface {
     public async receiveMessage(
         queueUrl: string
     ): Promise<ReceiveMessageOutput> {
-        if (queueUrl === "test") {
+        if (queueUrl === "valid-queue") {
             return Promise.resolve({
                 success: true,
-                messages: [],
+                messages: [
+                    {
+                        MessageId: "test",
+                        ReceiptHandle: "test",
+                        Body: "test",
+                    },
+                ],
             });
         }
 
@@ -27,7 +33,7 @@ export class ForSqsClientMock implements QueueClientInterface {
         queueUrl: string,
         receiptHandle: string
     ): Promise<DeleteMessageOutput> {
-        if (queueUrl === "test" && receiptHandle === "test") {
+        if (queueUrl === process.env.QUEUE_URL && receiptHandle === "test") {
             return Promise.resolve({
                 success: true,
             });
