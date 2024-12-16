@@ -1,18 +1,13 @@
 {
+    "preset": "ts-jest",
     "testEnvironment": "node",
-    "rootDir": ".",
-    "verbose": true,
-    "clearMocks": true,
-    "collectCoverage": false,
-    "coveragePathIgnorePatterns": [],
-    "modulePathIgnorePatterns": ["./dist", "./node_modules"],
-    "transform": {
-        "^.+\\.ts?$": "ts-jest"
-    },
+    "roots": ["<rootDir>/tests"],
+    "testMatch": ["**/*.test.ts"],
     "moduleFileExtensions": ["ts", "js", "json"],
-    "globals": {
-        "ts-jest": {
-            "tsconfig": "tsconfig.json"
-        }
-    }
+    "collectCoverage": true,
+    "coverageDirectory": "coverage",
+    "coveragePathIgnorePatterns": [
+        "/node_modules/",
+        "/tests/mocks/"
+    ]
 }

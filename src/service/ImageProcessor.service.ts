@@ -1,14 +1,15 @@
 import { LoggerInterface } from "../utils/logger/LoggerInterface";
 import { MessageReceiveHandler } from "./handlers/MessageReceiveHandler";
-import { ProcessingContext } from "./handlers/HandlerInterface";
+import { HandlerInterface, ProcessingContext } from "./handlers/HandlerInterface";
+import { ClientError } from "../driven/ClientError";
 
 export class ImageProcessorService {
     private readonly logger: LoggerInterface;
-    private readonly processingChain: MessageReceiveHandler;
+    private readonly processingChain: HandlerInterface;
 
     constructor(
         logger: LoggerInterface,
-        processingChain: MessageReceiveHandler
+        processingChain: HandlerInterface
     ) {
         this.logger = logger;
         this.processingChain = processingChain;
@@ -37,28 +38,15 @@ export class ImageProcessorService {
         }
     }
 
-    public async processImageTask(): Promise<void> {
-        try {
-            const context: ProcessingContext = {
-                queueUrl: process.env.QUEUE_URL || "",
-                imageKey: "",
-                receiptHandle: "",
-                tableName: process.env.TABLE_NAME || "",
-            };
+    public async processImageTask(context: ProcessingContext): Promise<{
+        success: boolean,
+        context: ProcessingContext,
+    }> {
 
-            const success = await this.processingChain.handle(context);
-
-            if (success) {
-                this.logger.info("Image processing completed successfully", {
-                    imageKey: context.imageKey,
-                    destinationBucket: process.env.BUCKET_NAME,
-                });
-            }
-        } catch (error) {
-            this.logger.error("Unexpected error during image processing", {
-                error: error instanceof Error ? error.message : String(error),
-                stack: error instanceof Error ? error.stack : undefined,
-            });
-        }
+        const response = await this.processingChain.handle(context);
+        return {
+            success: response,
+            context,
+        };
     }
 }

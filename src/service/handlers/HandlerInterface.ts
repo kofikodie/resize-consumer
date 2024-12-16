@@ -4,9 +4,12 @@ export interface HandlerInterface {
 }
 
 export interface ProcessingContext {
+    queueUrl: string;
     imageKey: string;
     receiptHandle: string;
     imageBuffer?: Buffer;
     resizedBuffer?: Buffer;
-    [key: string]: any;
+    tableName: string;
+    primaryBucketName: string;
+    secondaryBucketName: string;
 }

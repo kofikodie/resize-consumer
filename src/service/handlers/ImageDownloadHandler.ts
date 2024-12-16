@@ -1,30 +1,54 @@
-import S3Adapter from "../../adapters/S3Adapter";
+import BucketAdapter from "../../adapters/BucketAdapter";
+import { BucketAdapterInterface } from "../../adapters/ports/BucketAdapterInterface";
 import { BaseHandler } from "./BaseHandler";
 import { ProcessingContext } from "./HandlerInterface";
 
 export class ImageDownloadHandler extends BaseHandler {
-    private readonly s3Adapter: S3Adapter;
+    private readonly s3Adapter: BucketAdapterInterface;
 
-    constructor(s3Adapter: S3Adapter, ...args: ConstructorParameters<typeof BaseHandler>) {
+    constructor(
+        s3Adapter: BucketAdapterInterface,
+        ...args: ConstructorParameters<typeof BaseHandler>
+    ) {
         super(...args);
         this.s3Adapter = s3Adapter;
     }
 
-    protected async processRequest(context: ProcessingContext): Promise<boolean> {
-        const imageBuffer = await this.s3Adapter.getImageByKey(
-            process.env.BUCKET_NAME_TMP ?? "",
+    protected async processRequest(
+        context: ProcessingContext
+    ): Promise<boolean> {
+        const response = await this.s3Adapter.getImageByKey(
+            context.primaryBucketName,
             context.imageKey
         );
 
-        if ("error" in imageBuffer) {
+        if (!response.success) {
             this.logger.error("Failed to download image", {
                 imageKey: context.imageKey,
-                error: imageBuffer.error
+                error: {
+                    name: response.error?.name,
+                    mssage: response.error?.message,
+                    stack: response.error?.stack,
+                },
             });
+
             return false;
         }
 
-        context.imageBuffer = imageBuffer;
-        return true;
+        if (response.result instanceof Buffer) {
+            context.imageBuffer = response.result;
+            return true;
+        }
+
+        this.logger.error("Failed to download image", {
+            imageKey: context.imageKey,
+            error: {
+                name: "Failed to download image",
+                message: "Response is not a buffer",
+                stack: `ImageDownloadHandler.processRequest`,
+            },
+        });
+
+        return false;
     }
-} 
+}

@@ -1,13 +1,12 @@
-import SQSAdapter from "../../adapters/SqsAdapter";
-import { SqsAdapterInterface } from "../../adapters/SqsAdapterInterface";
+import { QueueAdapterInterface } from "../../adapters/ports/QueueAdapterInterface";
 import { BaseHandler } from "./BaseHandler";
 import { ProcessingContext } from "./HandlerInterface";
 
 export class MessageReceiveHandler extends BaseHandler {
-    private readonly sqsAdapter: SqsAdapterInterface;
+    private readonly sqsAdapter: QueueAdapterInterface;
 
     constructor(
-        sqsAdapter: SqsAdapterInterface,
+        sqsAdapter: QueueAdapterInterface,
         ...args: ConstructorParameters<typeof BaseHandler>
     ) {
         super(...args);
@@ -17,26 +16,30 @@ export class MessageReceiveHandler extends BaseHandler {
     protected async processRequest(
         context: ProcessingContext
     ): Promise<boolean> {
-        const messageResult = await this.sqsAdapter.getMessage();
+        const messageResult = await this.sqsAdapter.getMessage(
+            context.queueUrl
+        );
 
-        if (
-            !messageResult ||
-            "error" in messageResult ||
-            !messageResult.Body ||
-            !messageResult.ReceiptHandle
-        ) {
-            if (messageResult && "error" in messageResult) {
-                this.logger.error("Error receiving message", {
-                    error: messageResult.error,
-                });
-                return false;
-            }
-            this.logger.info("No messages to process");
+        if (messageResult.success && messageResult.result?.length === 0) {
+            this.logger.info("No message received", {
+                queueUrl: context.queueUrl,
+            });
             return false;
         }
 
-        context.imageKey = messageResult.Body;
-        context.receiptHandle = messageResult.ReceiptHandle;
+        if (!messageResult.success) {
+            this.logger.error("Error receiving message", {
+                error: {
+                    name: messageResult.error?.name ?? "Unknown error",
+                    message: messageResult.error?.message ?? "Unknown error",
+                    stack: messageResult.error?.stack ?? "Unknown stack",
+                },
+            });
+            return false;
+        }
+
+        context.imageKey = messageResult.result?.[0]?.Body ?? "";
+        context.receiptHandle = messageResult.result?.[0]?.ReceiptHandle ?? "";
         return true;
     }
 }

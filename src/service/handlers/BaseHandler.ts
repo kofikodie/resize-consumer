@@ -1,8 +1,6 @@
 import { LoggerInterface } from "../../utils/logger/LoggerInterface";
 import { HandlerInterface, ProcessingContext } from "./HandlerInterface";
 
-
-
 export abstract class BaseHandler implements HandlerInterface {
     protected next: BaseHandler | null = null;
     protected readonly logger: LoggerInterface;
